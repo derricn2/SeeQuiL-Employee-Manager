@@ -1,16 +1,5 @@
-const mysql = require('mysql2');
 const inquirer = require('inquirer');
-
-// connection to database
-const db = mysql.createConnection(
-    {
-        host: 'localhost',
-        user: 'root',
-        password: 'Fugma!123',
-        database: 'employee_db',
-    },
-    console.log('Connected to the employee_db database')
-);
+const db = require('./db/db.js');
 
 // display main menu
 async function promptMainMenu() {
@@ -59,6 +48,36 @@ async function promptMainMenu() {
             console.log('Exiting...');
             process.exit();
     }
-}
+};
+
+// function to view all departments
+async function viewAllDepartments() {
+    try {
+      const [departments] = await db.query('SELECT * FROM department');
+      console.table(departments);
+    } catch (error) {
+      console.error('Error executing query:', error);
+    }
+    promptMainMenu();
+  };
+
+// function to view roles
+async function viewAllRoles() {
+    try {
+        const query = `
+        SELECT role.id,
+               role.title,
+               role.salary,
+               department.name AS department
+        FROM role
+        INNER JOIN department ON role.department_id = department.id
+        `;
+        const [roles] = await db.query(query);
+        console.table(roles);
+    } catch (error) {
+        console.error('Error executing query:', error);
+    }
+    promptMainMenu();
+};
 
 promptMainMenu();
